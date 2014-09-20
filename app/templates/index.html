@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>List of wanted data</h1>
+    <button type="button" class="btn btn-success dataset-button" data-toggle="modal" data-target="#dataset-modal">
+        Add wanted data
+    </button>
+    <hr/>
+
+    <ul class="media-list">
+        {% for dataset in datasets %}
+            <li class="media">
+                <div class="pull-right">
+                    <h4 class="media-heading" data-vote="{{ dataset.id }}">{{ dataset.votes|length }}</h4>
+                    <button type="button" class="btn btn-success vote-button" data-toggle="modal" data-target="#vote-modal"
+                            data-id="{{ dataset.id }}" data-name="{{ dataset.name }}">
+                        Vote
+                    </button>
+                </div>
+
+                <div class="media-body text-justify">
+                    <h4 class="media-heading">
+                        <a href="{{ url_for('.dataset', id=dataset.id) }}">
+                            {{ dataset.name }}
+                        </a>
+                    </h4>
+
+                    <p>{{ dataset.description|markdown }}</p>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

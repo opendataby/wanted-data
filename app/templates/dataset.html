@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="media">
+        <div class="pull-right">
+            <h4 class="media-heading" data-vote="{{ dataset.id }}">{{ dataset.votes|length }}</h4>
+            <button type="button" class="btn btn-success vote-button" data-toggle="modal" data-target="#vote-modal"
+                    data-id="{{ dataset.id }}" data-name="{{ dataset.name }}">
+                Vote
+            </button>
+        </div>
+
+        <div class="media-body text-justify">
+            <h4 class="media-heading">
+                {{ dataset.name }}
+            </h4>
+
+            <p>{{ dataset.description|markdown }}</p>
+
+            <ul>
+                {% for vote in dataset.votes %}
+                    {% if vote.comment %}
+                        <li>
+                            {{ vote.comment|markdown }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

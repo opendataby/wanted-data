@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>wanted data</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <style>
+        body {
+            padding-top: 40px;
+        }
+
+        .starter-template {
+            padding: 40px 15px;
+            text-align: center;
+        }
+
+        input, textarea {
+            margin: 6px 0;
+        }
+
+        .done-message p {
+            padding: 15px;
+            margin: 0;
+        }
+
+        .center-block {
+            text-align: center;
+            margin: 40px 0 0;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Wanted Data - opendata.by</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="starter-template">
+        {% block content %}{% endblock %}
+
+        <hr/>
+        <p class="center-block">Powered by <a href="http://opendata.by">opendata.by</a> community</p>
+    </div>
+</div><!-- /.container -->
+
+
+<div class="modal fade" id="done-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title done-title"></h4>
+            </div>
+            <div class="modal-body done-message"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="dataset-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="dataset-form" action="{{ url_for('.dataset_add') }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title">Add wanted dataset</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="dataset-name" name="name" class="form-control" required="true" placeholder="Enter dataset name" />
+                    <textarea id="dataset-description" name="description" class="form-control" rows="5" maxlength="800" placeholder="Add description"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="vote-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="vote-form" action="{{ url_for('.dataset_vote') }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title vote-title"></h4>
+                </div>
+                <div class="modal-body">
+                    To continue please enter your email:
+                    <ul>
+                        <li>you can get email when dataset will be uploaded</li>
+                        <li>it increase probability that you not bot</li>
+                    </ul>
+                    <input type="email" id="vote-email" name="email" class="form-control" required="true" placeholder="Enter email" />
+                    <input type="hidden" id="vote-dataset" name="dataset" />
+                    <textarea id="vote-comment" name="comment" class="form-control" rows="3" maxlength="160" placeholder="Why it's important for your?"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Vote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script>
+
+<script>
+    $('.dataset-button').on('click', function () {
+        $('#dataset-name').val('');
+        $('#dataset-email').val('');
+        $('#dataset-description').val('');
+        $('#dataset-comment').val('');
+    });
+
+    $('#dataset-form').ajaxForm(function(data) {
+        if (data.status === 'ok') {
+            $('.done-message').html('<p class="bg-success">Done.</p>');
+        } else if (data.reason === 'already exist') {
+            $('.done-message').html('<p class="bg-info">Dataset already exist.</p>');
+        } else {
+            $('.done-message').html('<p class="bg-success">Error occurred. Please try later.</p>');
+        }
+        $('.done-title').text('Adding ' +  data.name);
+        $('#done-modal button').on('click', function () {
+            window.location.pathname = '/dataset/' + data.dataset;
+        });
+        $('#dataset-modal').modal('hide');
+        $('#done-modal').modal('show');
+    });
+
+    $('.vote-button').on('click', function () {
+        var datasetId = $(this).data('id');
+        var datasetName = $(this).data('name');
+        $('.done-title').text('Vote to ' +  datasetName);
+        $('.vote-title').text('Vote to ' +  datasetName);
+        $('#vote-email').val('');
+        $('#vote-comment').val('');
+        $('#vote-dataset').val(datasetId);
+    });
+
+    $('#vote-form').ajaxForm(function(data) {
+        if (data.status === 'ok') {
+            var votes = $('[data-vote="' + data.dataset + '"]');
+            votes.text(parseInt(votes.text()) + 1);
+            $('.done-message').html('<p class="bg-success">Done.</p>');
+            $('#done-modal button').on('click', function () {
+                window.location.reload();
+            });
+        } else if (data.reason === 'already exist') {
+            $('.done-message').html('<p class="bg-info">You are already voted.</p>');
+        } else {
+            $('.done-message').html('<p class="bg-warning">Error occurred. Please try later.</p>');
+        }
+        $('#vote-modal').modal('hide');
+        $('#done-modal').modal('show');
+    });
+</script>
+</body>
+</html>
