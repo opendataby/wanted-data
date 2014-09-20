@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block links %}
+    <link title="RSS" type="application/atom+xml" rel="alternate" href="{{ url_for('.index_feed') }}"/>
+{% endblock %}
+
 {% block content %}
     <h1>List of wanted data</h1>
     <button type="button" class="btn btn-success dataset-button" data-toggle="modal" data-target="#dataset-modal">

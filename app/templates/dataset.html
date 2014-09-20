@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block links %}
+    <link title="RSS" type="application/atom+xml" rel="alternate" href="{{ url_for('.dataset_feed', id=dataset.id) }}"/>
+{% endblock %}
+
 {% block content %}
     <div class="media">
         <div class="pull-right">

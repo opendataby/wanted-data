@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, request, url_for, render_template, abort, jsonify
+from markdown import markdown
 from sqlalchemy.exc import DatabaseError
 from werkzeug.contrib.atom import AtomFeed
 
@@ -11,6 +12,16 @@ routes = Blueprint(None, __name__)
 @routes.route('/')
 def index():
     return render_template('index.html', datasets=db.session.query(DataSet).all())
+
+
+@routes.route('/feed.atom')
+def index_feed():
+    feed = AtomFeed('wanted opendata.by', feed_url=request.url, url=request.url_root)
+    for dataset in db.session.query(DataSet).order_by(DataSet.create.desc()).limit(20).all():
+        feed.add(dataset.name, markdown(dataset.description), content_type='html',
+                 url=url_for('.dataset', id=dataset.id), published=dataset.create, updated=dataset.create)
+    db.session.rollback()
+    return feed.get_response()
 
 
 @routes.route('/dataset/<int:id>')
@@ -59,11 +70,14 @@ def dataset_vote():
     return jsonify(status='ok', dataset=dataset_id)
 
 
-@routes.route('/feed.atom')
-def feed():
-    feed = AtomFeed('wanted opendata.by', feed_url=request.url, url=request.url_root)
-    for dataset in db.session.query(DataSet).order_by(DataSet.create.desc()).limit(20).all():
-        feed.add(dataset.name, dataset.description, content_type='html', url=url_for('dataset', id=dataset.id),
-                 published=dataset.create, updated=dataset.create)
+@routes.route('/dataset/<int:id>/feed.atom')
+def dataset_feed(id):
+    dataset = db.session.query(DataSet).filter(DataSet.id == id).first()
+    if not dataset:
+        abort(404)
+    feed = AtomFeed('wanted opendata.by: {}'.format(dataset.name), feed_url=request.url, url=request.url_root)
+    for vote in db.session.query(Vote).order_by(Vote.create.desc()).filter(Vote.dataset_id == id).limit(20).all():
+        feed.add(dataset.name, markdown(vote.comment), content_type='html',
+                 url=url_for('.dataset', id=id), published=vote.create, updated=vote.create)
     db.session.rollback()
     return feed.get_response()
