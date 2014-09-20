@@ -11,7 +11,8 @@ routes = Blueprint(None, __name__)
 
 @routes.route('/')
 def index():
-    return render_template('index.html', datasets=db.session.query(DataSet).all())
+    return render_template('index.html', datasets=db.session.query(DataSet).order_by(
+        DataSet.vote_count.desc(), DataSet.create).all())
 
 
 @routes.route('/feed.atom')
@@ -69,6 +70,8 @@ def dataset_vote():
         return jsonify(status='error', reason='bad value')
     try:
         db.session.add(Vote(email, dataset, comment))
+        dataset.vote_count += 1
+        db.session.add(dataset)
         db.session.commit()
     except IntegrityError as err:
         current_app.logger.warn('dateset_vote: error on save', exc_info=err)

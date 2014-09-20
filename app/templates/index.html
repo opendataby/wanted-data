@@ -12,7 +12,7 @@
         {% for dataset in datasets %}
             <li class="media">
                 <div class="pull-right">
-                    <h4 class="media-heading" data-vote="{{ dataset.id }}">{{ dataset.votes|length }}</h4>
+                    <h4 class="media-heading" data-vote="{{ dataset.id }}">{{ dataset.vote_count }}</h4>
                     <button type="button" class="btn btn-success vote-button" data-toggle="modal" data-target="#vote-modal"
                             data-id="{{ dataset.id }}" data-name="{{ dataset.name }}">
                         Vote
