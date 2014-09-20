@@ -140,15 +140,15 @@
     $('#dataset-form').ajaxForm(function(data) {
         if (data.status === 'ok') {
             $('.done-message').html('<p class="bg-success">Done.</p>');
+            $('#done-modal button').on('click', function () {
+                window.location.pathname = '/dataset/' + data.dataset;
+            });
         } else if (data.reason === 'already exist') {
             $('.done-message').html('<p class="bg-info">Dataset already exist.</p>');
         } else {
             $('.done-message').html('<p class="bg-success">Error occurred. Please try later.</p>');
         }
         $('.done-title').text('Adding ' +  data.name);
-        $('#done-modal button').on('click', function () {
-            window.location.pathname = '/dataset/' + data.dataset;
-        });
         $('#dataset-modal').modal('hide');
         $('#done-modal').modal('show');
     });
