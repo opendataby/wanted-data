@@ -5,3 +5,4 @@ flask-sqlalchemy==2.0
 sqlalchemy==0.9.7
 psycopg2==2.5.4
 flask-markdown==0.3
+gunicorn==19.1.1
