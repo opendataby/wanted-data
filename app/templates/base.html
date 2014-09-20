@@ -81,7 +81,7 @@
                     <h4 class="modal-title">Add wanted dataset</h4>
                 </div>
                 <div class="modal-body">
-                    <input type="text" id="dataset-name" name="name" class="form-control" required="true" placeholder="Enter dataset name" />
+                    <input type="text" id="dataset-name" name="name" class="form-control" required="true" maxlength="80" placeholder="Enter dataset name" />
                     <textarea id="dataset-description" name="description" class="form-control" rows="5" maxlength="800" placeholder="Add description"></textarea>
                 </div>
                 <div class="modal-footer">
@@ -111,7 +111,7 @@
                         <li>you can get email when dataset will be uploaded</li>
                         <li>it increase probability that you not bot</li>
                     </ul>
-                    <input type="email" id="vote-email" name="email" class="form-control" required="true" placeholder="Enter email" />
+                    <input type="email" id="vote-email" name="email" class="form-control" required="true" maxlength="64" placeholder="Enter email" />
                     <input type="hidden" id="vote-dataset" name="dataset" />
                     <textarea id="vote-comment" name="comment" class="form-control" rows="3" maxlength="160" placeholder="Why it's important for your?"></textarea>
                 </div>
