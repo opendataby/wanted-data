@@ -1,6 +1,7 @@
-from flask import Blueprint, request, url_for, render_template, abort, jsonify
-from sqlalchemy.exc import IntegrityError
+from flask import Blueprint, current_app, request, url_for, render_template, abort, jsonify
+from sqlalchemy.exc import DatabaseError
 from werkzeug.contrib.atom import AtomFeed
+
 from app.db import db, DataSet, Vote
 
 
@@ -25,12 +26,14 @@ def dataset_add():
     name = request.form.get('name')
     description = request.form.get('description')
     if not name:
+        current_app.logger.warn('dateset_add: name required')
         return jsonify(status='error', reason='bad value')
     try:
         dataset = DataSet(name, description)
         db.session.add(dataset)
         db.session.commit()
-    except IntegrityError:
+    except DatabaseError as err:
+        current_app.logger.warn('dateset_add: error on save', exc_info=err)
         return jsonify(status='error', reason='already exist')
     return jsonify(status='ok', dataset=dataset.id, name=dataset.name)
 
@@ -45,11 +48,13 @@ def dataset_vote():
         if not email or not dataset:
             raise ValueError
     except ValueError:
+        current_app.logger.warn('dateset_vote: email required')
         return jsonify(status='error', reason='bad value')
     try:
         db.session.add(Vote(email, dataset, comment))
         db.session.commit()
-    except IntegrityError:
+    except DatabaseError as err:
+        current_app.logger.warn('dateset_vote: error on save', exc_info=err)
         return jsonify(status='error', reason='already exist')
     return jsonify(status='ok', dataset=dataset_id)
 
