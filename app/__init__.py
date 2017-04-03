@@ -2,7 +2,7 @@ import logging
 import os
 import re
 
-from flask import Flask, request
+from flask import Flask, request, abort
 from flask.ext.markdown import Markdown
 
 from app.db import db, DataSet, Vote
@@ -26,4 +26,4 @@ app.logger.setLevel(logging.INFO)
 def before_request():
     if any(re.match(re.escape(ip).replace('\*', '\d+'), request.remote_addr)
            for ip in os.environ.get('BAN_IPS', '').split(',')):
-        os.abort(403)
+        abort(403)
