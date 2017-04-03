@@ -24,6 +24,6 @@ app.logger.setLevel(logging.INFO)
 
 @app.before_request
 def before_request():
-    if any(re.match(re.escape(ip).replace('\*', '\d+'), request.remote_addr)
+    if any(re.match(re.escape(ip).replace('\*', '\d+'), request.access_route[-1])
            for ip in os.environ.get('BAN_IPS', '').split(',')):
         abort(403)
