@@ -26,6 +26,9 @@ app.logger.setLevel(logging.INFO)
 def before_request():
     banned = os.environ.get('BAN_IPS', '').split(',')
     for ip in banned:
-        if re.match(re.escape(ip).replace('\*', '\d+'), request.access_route[-1]):
-            app.logger.info('BAN_IPS matched {}', ip)
+        ipre = re.escape(ip).replace('\*', '\d+')
+        app.logger.debug(f'access_route: {request.access_route}')
+        app.logger.debug(f'ipre: {ipre}')
+        if re.match(ipre, request.access_route[-1]):
+            app.logger.info(f'BAN_IPS matched {ip}')
             abort(403)
