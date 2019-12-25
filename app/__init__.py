@@ -19,7 +19,7 @@ db.create_all()
 app.register_blueprint(routes)
 
 app.logger.addHandler(logging.StreamHandler())
-app.logger.setLevel(logging.INFO)
+app.logger.setLevel(os.environ.get('LOG_LEVEL', logging.INFO))
 
 
 @app.before_request
