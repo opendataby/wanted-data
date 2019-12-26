@@ -3,7 +3,7 @@ import os
 import re
 
 from flask import Flask, request, abort
-from flask.ext.markdown import Markdown
+from flaskext.markdown import Markdown
 
 from app.db import db, DataSet, Vote
 from app.route import routes
