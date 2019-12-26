@@ -19,11 +19,16 @@ db.create_all()
 app.register_blueprint(routes)
 
 app.logger.addHandler(logging.StreamHandler())
-app.logger.setLevel(logging.INFO)
+app.logger.setLevel(os.environ.get('LOG_LEVEL', logging.INFO))
 
 
 @app.before_request
 def before_request():
-    if any(re.match(re.escape(ip).replace('\*', '\d+'), request.access_route[-1])
-           for ip in os.environ.get('BAN_IPS', '').split(',')):
-        abort(403)
+    banned = os.environ.get('BAN_IPS', '').split(',')
+    if not banned:
+        return
+    for ip in banned:
+        ipre = re.escape(ip).replace('\*', '\d+')
+        if re.match(ipre, request.access_route[-1]):
+            app.logger.info(f'BAN_IPS matched {ip}')
+            abort(403)
