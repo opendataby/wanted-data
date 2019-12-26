@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 
 from flask import Flask, request, abort
@@ -19,16 +18,13 @@ db.create_all()
 app.register_blueprint(routes)
 
 app.logger.addHandler(logging.StreamHandler())
-app.logger.setLevel(os.environ.get('LOG_LEVEL', logging.INFO))
+app.logger.setLevel(app.config['LOG_LEVEL'])
 
 
 @app.before_request
 def before_request():
-    banned = os.environ.get('BAN_IPS', '').split(',')
-    if not banned:
-        return
-    for ip in banned:
-        ipre = re.escape(ip).replace('\*', '\d+')
-        if re.match(ipre, request.access_route[-1]):
-            app.logger.info(f'BAN_IPS matched {ip}')
+    for ip in app.config['BAN_IPS']:
+        ip_pattern = re.escape(ip).replace(r'\*', r'\d+')
+        if re.match(ip_pattern, request.access_route[-1]):
+            app.logger.info('BAN_IPS matched %s', ip)
             abort(403)
